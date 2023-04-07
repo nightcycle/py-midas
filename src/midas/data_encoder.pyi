@@ -1,5 +1,5 @@
+from .playfab import RawRowData as RawRowData
 from pandas import DataFrame
-from playfab import RawRowData as RawRowData
 from typing import Any, TypedDict
 
 class PlayFabEnvironmentData(TypedDict):

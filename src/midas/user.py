@@ -1,10 +1,9 @@
-from session import Session
 import datetime as dt
-import playfab as pf
 import copy
 from datetime import datetime
 from typing import Any, TypedDict
-
+from .session import Session
+from .playfab import get_playfab_str_from_datetime
 
 class UserDumpData(TypedDict):
 	user_id: str
@@ -82,7 +81,7 @@ class User:
 	def dump(self):
 		return {
 			"user_id": self.user_id,
-			"timestamp": pf.get_playfab_str_from_datetime(self.timestamp),
+			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"index": self.index,
 			"session_count": len(self.sessions),
 			"revenue": self.revenue,

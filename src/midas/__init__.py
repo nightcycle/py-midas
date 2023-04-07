@@ -1,12 +1,9 @@
 import pandas as pd
 from pandas import DataFrame
 from typing import Any
-from event import Event, EventDumpData
-from session import Session, SessionDumpData
-from user import User, UserDumpData
-import event as event_class
-import session as session_class
-import user as user_class
+from .event import Event, get_events_from_df
+from .session import Session, SessionDumpData,  get_sessions_from_events, get_survival_rate
+from .user import User, UserDumpData, get_users_from_session_list
 
 def dump(objects: list[Event] | list[Session] | list[User]):
 	untyped_objects: Any = objects
@@ -38,15 +35,15 @@ def dump(objects: list[Event] | list[Session] | list[User]):
 def load(decoded_df: DataFrame) -> tuple[list[Event], list[Session], list[User]]:
 
 	print("assembling events")
-	events = event_class.get_events_from_df(decoded_df)
+	events = get_events_from_df(decoded_df)
 
 	print("assembling sessions")
-	sessions = session_class.get_sessions_from_events(events)
+	sessions = get_sessions_from_events(events)
 	
 	print("assembling users")
-	users = user_class.get_users_from_session_list(sessions)
+	users = get_users_from_session_list(sessions)
 	
-	survival_rate = session_class.get_survival_rate(sessions)
+	survival_rate = get_survival_rate(sessions)
 
 	print("event survival rate: "+str(round(survival_rate*100000)/1000)+"%")
 

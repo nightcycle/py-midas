@@ -1,8 +1,7 @@
-import event as event_class
-import playfab as pf
-from event import Event, VersionData
 import copy
 from typing import Any, TypedDict
+from .playfab import get_playfab_str_from_datetime
+from .event import Event, VersionData, fill_down_event_from_previous, fill_down_events
 
 class SessionDumpData(TypedDict):
 	session_id: str
@@ -65,7 +64,7 @@ class Session:
 		return {
 			"session_id": self.session_id,
 			"user_id": self.user_id,
-			"timestamp": pf.get_playfab_str_from_datetime(self.timestamp),
+			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"version": copy.deepcopy(self.version),
 			"index": self.index,
 			"event_count": len(self.events),
@@ -239,8 +238,8 @@ def get_sessions_from_events(events: list[Event], fill_down_enabled=False, recur
 
 					if fill_down_enabled:
 						if recursive_fill_down:
-							event_class.fill_down_event_from_previous(previous, current)
+							fill_down_event_from_previous(previous, current)
 						else:
-							event_class.fill_down_events(session_event_list, current, current.index - 1, 0)
+							fill_down_events(session_event_list, current, current.index - 1, 0)
 				
 	return sessions

@@ -1,12 +1,11 @@
 import copy
 import json
-import playfab as pf
 from pandas import DataFrame
-from data_encoder import DecodedRowData as RowData
-from data_encoder import VersionData, EventData, BaseStateTree, IndexData, IdentificationData
 from datetime import datetime
-from typing import Any, TypedDict
-
+from typing import Any
+from .playfab import get_datetime_from_playfab_str, get_playfab_str_from_datetime
+from .data_encoder import DecodedRowData as RowData
+from .data_encoder import VersionData, EventData, BaseStateTree
 
 def version_to_version_text(version: VersionData, is_hotfix_included=True, is_tag_included=False, is_test_group_included=False, is_build_included=True):
 	major = version["Major"]
@@ -66,7 +65,7 @@ class Event:
 		self.name = row_data["EventName"]
 		self.playfab_session_id = row_data["Entity_Id"]
 		self.event_id = row_data["EventId"]
-		self.timestamp: datetime = pf.get_datetime_from_playfab_str(row_data["Timestamp"])
+		self.timestamp: datetime = get_datetime_from_playfab_str(row_data["Timestamp"])
 
 		event_data: EventData = row_data["EventData"]
 		state_data = event_data["State"]
@@ -107,7 +106,7 @@ class Event:
 		event_dump_date: Any = {
 			"state_data": copy.deepcopy(self.state_data),
 			"name": self.name,
-			"timestamp": pf.get_playfab_str_from_datetime(self.timestamp),
+			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"event_id": self.event_id,
 			"version_text": self.version_text,
 			"first_event_found": self.first_event_found,

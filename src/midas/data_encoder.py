@@ -1,7 +1,7 @@
 import json
 from pandas import DataFrame
-from playfab import RawRowData
 from typing import Any, TypedDict, Union
+from .playfab import RawRowData
 
 class PlayFabEnvironmentData(TypedDict):
 	Vertical: str
