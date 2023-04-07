@@ -1,0 +1,4 @@
+dist/**
+build/**
+midas_data_util.egg-info
+scripts/upload.sh
