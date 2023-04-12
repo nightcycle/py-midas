@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 import json
 from uuid import uuid4
 from pandas import DataFrame
@@ -42,16 +42,21 @@ def version_to_version_text(version: VersionData, is_hotfix_included=True, is_ta
 	return version_text
 
 class EventDumpData:
-	state_data: BaseStateTree
 	name: str
-	timestamp: str
 	event_id: str
-	session_id: str | None
-	user_id: str
+	timestamp: str
+	seconds_since_previous_event: None | float
+	seconds_since_session_start: float
 	version_text: str
+	revenue: int
+	session_id: str
+	user_id: str
+	place_id: str
+	version: VersionData
 	index: int
-	first_event_found: bool
+	is_studio: bool
 	is_sequential: bool
+	state_date: BaseStateTree
 
 class Event: 
 	name: str
@@ -68,6 +73,7 @@ class Event:
 	index: int
 	is_studio: bool
 	is_sequential: bool
+	state_date: BaseStateTree
 
 	def __init__(
 		self, 
@@ -110,20 +116,21 @@ class Event:
 
 	def dump(self) -> EventDumpData:
 		event_dump_date: Any = {
-			"state_data": copy.deepcopy(self.state_data),
 			"name": self.name,
+			"event_id": self.event_id,
 			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"seconds_since_previous_event": self.seconds_since_previous_event,
 			"seconds_since_session_start": self.seconds_since_session_start,
-			"revenue": self.revenue,
-			"place_id": self.place_id,
-			"event_id": self.event_id,
-			"user_id": self.user_id,
-			"session_id": self.session_id,
 			"version_text": self.version_text,
-			"version": copy.deepcopy(self.version),
+			"revenue": self.revenue,
+			"session_id": self.session_id,
+			"user_id": self.user_id,
+			"place_id": self.place_id,
+			"version": deepcopy(self.version),
 			"index": self.index,
+			"is_studio": self.is_studio,
 			"is_sequential": self.is_sequential,
+			"state_date": deepcopy(self.state_data),
 		}
 		return event_dump_date
 
@@ -141,7 +148,7 @@ def fill_down(current_data: dict | None, prev_data: dict | None):
 		for key in prev_data:
 			val = prev_data[key]
 			if not key in current_data:
-				current_data[key] = copy.deepcopy(prev_data[key])
+				current_data[key] = deepcopy(prev_data[key])
 
 				return current_data
 

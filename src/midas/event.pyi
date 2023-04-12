@@ -10,16 +10,21 @@ def get_if_session_id_generated(session_id: str) -> bool: ...
 def version_to_version_text(version: VersionData, is_hotfix_included: bool = ..., is_tag_included: bool = ..., is_test_group_included: bool = ..., is_build_included: bool = ...): ...
 
 class EventDumpData:
-    state_data: BaseStateTree
     name: str
-    timestamp: str
     event_id: str
-    session_id: str | None
-    user_id: str
+    timestamp: str
+    seconds_since_previous_event: None | float
+    seconds_since_session_start: float
     version_text: str
+    revenue: int
+    session_id: str
+    user_id: str
+    place_id: str
+    version: VersionData
     index: int
-    first_event_found: bool
+    is_studio: bool
     is_sequential: bool
+    state_date: BaseStateTree
 
 class Event:
     name: str
@@ -36,6 +41,7 @@ class Event:
     index: int
     is_studio: bool
     is_sequential: bool
+    state_date: BaseStateTree
     state_data: Incomplete
     def __init__(self, row_data: RowData) -> None: ...
     def __lt__(self, other): ...

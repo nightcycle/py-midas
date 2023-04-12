@@ -7,13 +7,13 @@ from .event import Event
 class SessionDumpData(TypedDict):
 	session_id: str
 	user_id: str
+	is_studio: bool
 	timestamp: str
 	version_text: str
-	index: int
-	event_count: int
-	revenue: int
 	is_singular_version: bool
 	duration: float
+	revenue: int
+	index: int
 
 class Session: 
 	session_id: str
@@ -23,6 +23,9 @@ class Session:
 	timestamp: datetime
 	version_text: str
 	is_singular_version: bool
+	duration: float
+	revenue: int
+	index: int
 
 	def __init__(
 		self, 
@@ -65,13 +68,13 @@ class Session:
 		return {
 			"session_id": self.session_id,
 			"user_id": self.user_id,
+			"is_studio": self.is_studio,
 			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"version_text": self.version_text,
 			"is_singular_version": self.is_singular_version,
-			"index": self.index,
-			"event_count": len(self.events),
-			"revenue": self.revenue,
 			"duration": self.duration,
+			"revenue": self.revenue,
+			"index": self.index
 		}
 
 def get_survival_rate(sessions: list[Session]) -> float:

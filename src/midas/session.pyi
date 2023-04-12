@@ -1,6 +1,5 @@
 from .event import Event as Event
 from .playfab import get_playfab_str_from_datetime as get_playfab_str_from_datetime
-from _typeshed import Incomplete
 from copy import deepcopy as deepcopy
 from datetime import datetime
 from typing import TypedDict
@@ -8,13 +7,13 @@ from typing import TypedDict
 class SessionDumpData(TypedDict):
     session_id: str
     user_id: str
+    is_studio: bool
     timestamp: str
     version_text: str
-    index: int
-    event_count: int
-    revenue: int
     is_singular_version: bool
     duration: float
+    revenue: int
+    index: int
 
 class Session:
     session_id: str
@@ -24,7 +23,7 @@ class Session:
     timestamp: datetime
     version_text: str
     is_singular_version: bool
-    duration: Incomplete
+    duration: float
     revenue: int
     index: int
     def __init__(self, events: list[Event]) -> None: ...

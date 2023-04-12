@@ -79,8 +79,8 @@ class User:
 		t2 = other.timestamp
 		return t1 < t2
 		
-	def dump(self):
-		return {
+	def dump(self) -> UserDumpData:
+		data: Any = {
 			"user_id": self.user_id,
 			"timestamp": get_playfab_str_from_datetime(self.timestamp),
 			"index": self.index,
@@ -93,6 +93,7 @@ class User:
 			"is_retained_on_d14": self.is_retained_on_d14,
 			"is_retained_on_d28": self.is_retained_on_d28,
 		}
+		return data
 
 def get_users_from_session_list(sessions: list[Session]):
 	
