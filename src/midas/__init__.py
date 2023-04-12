@@ -32,15 +32,25 @@ def dump(objects: list[Event] | list[Session] | list[User]):
 	
 
 	
-def load(decoded_df: DataFrame) -> tuple[list[Event], list[Session], list[User]]:
+def load(
+	decoded_df: DataFrame,
+	stitch_session_separation_limit_seconds=180, 
+	exit_event_name="UserExitQuit", 
+	enter_event_name="UserJoinEnter",
+	rejoin_event_name="UserRejoin",
+	teleport_event_name="UserTeleport",
+	sessions_must_include_exit_and_enter_events=True,
+	fill_down_enabled=False, 
+	recursive_fill_down_enabled=False
+) -> tuple[list[Event], list[Session], list[User]]:
 
-	print("assembling events")
-	events = get_events_from_df(decoded_df)
+	print(f"assembling events from {decoded_df.shape[0]} rows of data")
+	events = get_events_from_df(decoded_df, stitch_session_separation_limit_seconds, exit_event_name, enter_event_name, rejoin_event_name, teleport_event_name, fill_down_enabled, recursive_fill_down_enabled)
 
-	print("assembling sessions")
-	sessions = get_sessions_from_events(events)
+	print(f"assembling sessions from {len(events)} events")
+	sessions = get_sessions_from_events(events, sessions_must_include_exit_and_enter_events, exit_event_name, enter_event_name)
 	
-	print("assembling users")
+	print(f"assembling users from {len(sessions)} sessions")
 	users = get_users_from_session_list(sessions)
 	
 	survival_rate = get_survival_rate(sessions)

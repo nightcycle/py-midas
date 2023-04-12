@@ -22,9 +22,9 @@ class IndexData(TypedDict):
     Event: int
 
 class IdentificationData(TypedDict):
-    Place: str | None
+    Place: str
     Session: str | None
-    User: str | None
+    User: str
 
 class BaseStateTree(TypedDict):
     Version: VersionData
@@ -39,7 +39,6 @@ class EventData(TypedDict):
     Source: str
     EntityType: str
     TitleId: str
-    EntityId: str
     EventId: str
     SourceType: str
     Timestamp: str
@@ -48,7 +47,6 @@ class EventData(TypedDict):
     State: BaseStateTree
 
 class DecodedRowData(TypedDict):
-    Entity_Id: str
     EventData: EventData
     Timestamp: str
     PlayFabUserId: str

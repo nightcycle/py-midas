@@ -23,9 +23,9 @@ class IndexData(TypedDict):
 	Event: int
 
 class IdentificationData(TypedDict):
-	Place: str | None
+	Place: str
 	Session: str | None
-	User: str | None
+	User: str
 
 
 class BaseStateTree(TypedDict):
@@ -42,7 +42,6 @@ class EventData(TypedDict):
 	Source: str
 	EntityType: str
 	TitleId: str
-	EntityId: str
 	EventId: str
 	SourceType: str
 	Timestamp: str
@@ -52,7 +51,6 @@ class EventData(TypedDict):
 
 
 class DecodedRowData(TypedDict):
-	Entity_Id: str
 	EventData: EventData
 	Timestamp: str
 	PlayFabUserId: str
@@ -204,13 +202,16 @@ def decode_raw_df(raw_df: DataFrame, encoding_config: Any) -> DataFrame:
 
 	decoded_record_list: list[DecodedRowData] = []
 	for raw_row_data in raw_record_list:
-		encoded_data_str = raw_row_data["EventData"].replace("'", "\"").replace("False", "false").replace("True", "true")
-		event_data: Any = json.loads(encoded_data_str)
+		event_data: Any = {}
+		if type(raw_row_data["EventData"]) == str:
+			encoded_data_str = raw_row_data["EventData"].replace("'", "\"").replace("False", "false").replace("True", "true")
+			event_data = json.loads(encoded_data_str)
+		else:
+			event_data = raw_row_data["EventData"]
 		encoded_state_data = event_data["State"]
 		decoded_state_data = decode(encoded_state_data, encoding_config)
 		event_data["State"] = decoded_state_data
 		decoded_row_data: DecodedRowData = {
-				"Entity_Id": raw_row_data["Entity_Id"],
 				"EventData": event_data,
 				"Timestamp": raw_row_data["Timestamp"],
 				"PlayFabUserId": raw_row_data["PlayFabUserId"],

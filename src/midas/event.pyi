@@ -3,8 +3,10 @@ from .playfab import get_datetime_from_playfab_str as get_datetime_from_playfab_
 from _typeshed import Incomplete
 from datetime import datetime
 from pandas import DataFrame as DataFrame
-from typing import Any
 
+SID_GEN_REFIX: str
+
+def get_if_session_id_generated(session_id: str) -> bool: ...
 def version_to_version_text(version: VersionData, is_hotfix_included: bool = ..., is_tag_included: bool = ..., is_test_group_included: bool = ..., is_build_included: bool = ...): ...
 
 class EventDumpData:
@@ -12,6 +14,8 @@ class EventDumpData:
     name: str
     timestamp: str
     event_id: str
+    session_id: str | None
+    user_id: str
     version_text: str
     index: int
     first_event_found: bool
@@ -19,17 +23,18 @@ class EventDumpData:
 
 class Event:
     name: str
-    playfab_session_id: str
     event_id: str
     timestamp: datetime
+    seconds_since_previous_event: None | float
+    seconds_since_session_start: float
     version_text: str
-    session_id: str | None
-    user_id: str | None
-    place_id: str | None
+    revenue: int
+    session_id: str
+    user_id: str
+    place_id: str
     version: VersionData
     index: int
     is_studio: bool
-    first_event_found: bool
     is_sequential: bool
     state_data: Incomplete
     def __init__(self, row_data: RowData) -> None: ...
@@ -40,7 +45,4 @@ def fill_down(current_data: dict | None, prev_data: dict | None): ...
 def transfer_property(previous_data: dict, current_data: dict): ...
 def fill_down_event_from_previous(previous: Event, current: Event): ...
 def fill_down_events(session_events: list[Event], current: Event, targetIndex: int, depth: int): ...
-def flatten_table(all_event_data: dict[str, dict], column_prefix: str, row_data: dict): ...
-def get_cell(table_data: dict[str, list[Any]], column_name: str, row_index: int): ...
-def get_event_data_at_row(table_data: dict[str, list[Any]], row_index: int) -> EventData: ...
-def get_events_from_df(decoded_df: DataFrame) -> list[Event]: ...
+def get_events_from_df(decoded_df: DataFrame, stitch_session_separation_limit_seconds: int = ..., exit_event_name: str = ..., enter_event_name: str = ..., rejoin_event_name: str = ..., teleport_event_name: str = ..., fill_down_enabled: bool = ..., recursive_fill_down_enabled: bool = ...) -> list[Event]: ...

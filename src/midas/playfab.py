@@ -20,7 +20,6 @@ class UserData(TypedDict):
 	JoinTimestamp: str
 
 class RawRowData(TypedDict):
-	Entity_Id: str
 	EventData: str
 	Timestamp: str
 	PlayFabUserId: str
@@ -138,7 +137,7 @@ let only_events_after = datetime("{get_playfab_str_from_datetime(user_join_floor
 | project-rename PlayFabUserId=EntityLineage_master_player_account
 | where PlayFabUserId in (playfab_user_ids)
 | project-rename EventName=FullName_Name
-| project-keep EventData, Entity_Id, Timestamp, PlayFabUserId, EventName, EventId
+| project-keep EventData, Timestamp, PlayFabUserId, EventName, EventId
 """
 		return self.query(query)
 
@@ -225,7 +224,14 @@ let only_events_after = datetime("{get_playfab_str_from_datetime(user_join_floor
 		return event_data_list
 
 
-	def download_all_event_data(self, user_join_floor: str | datetime, join_window_in_days: int, user_limit=1000000, max_event_list_length=20000, update_increment=2500) -> list[RawRowData]:
+	def download_all_event_data(
+		self, 
+		user_join_floor: str | datetime, 
+		join_window_in_days: int, 
+		user_limit=1000000, 
+		max_event_list_length=20000, 
+		update_increment=2500
+	) -> list[RawRowData]:
 		user_join_floor_datetime: datetime
 		if type(user_join_floor) == str:
 			user_join_floor_datetime = get_datetime_from_playfab_str(user_join_floor)

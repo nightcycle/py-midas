@@ -9,21 +9,27 @@ class UserDumpData(TypedDict):
     timestamp: str
     index: int
     session_count: int
-    revenue: int
-    duration: float
-    is_retained_on_day: list[bool]
+    net_revenue: int
+    net_duration: float
+    is_retained_on_d0: bool
+    is_retained_on_d1: bool
+    is_retained_on_d7: bool
+    is_retained_on_d14: bool
+    is_retained_on_d28: bool
 
 class User:
     user_id: str
     timestamp: datetime
     index: int
     session_count: int
-    revenue: int
-    duration: float
-    is_retained_on_day: list[bool]
+    net_revenue: int
+    net_duration: float
+    is_retained_on_d0: bool
+    is_retained_on_d1: bool
+    is_retained_on_d7: bool
+    is_retained_on_d14: bool
+    is_retained_on_d28: bool
     sessions: Incomplete
-    first_session_timestamp: Incomplete
-    last_session_timestamp: Incomplete
     def __init__(self, sessions: list[Session]) -> None: ...
     def __lt__(self, other): ...
     def dump(self): ...

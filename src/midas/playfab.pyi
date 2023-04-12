@@ -16,7 +16,6 @@ class UserData(TypedDict):
     JoinTimestamp: str
 
 class RawRowData(TypedDict):
-    Entity_Id: str
     EventData: str
     Timestamp: str
     PlayFabUserId: str
