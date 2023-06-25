@@ -102,8 +102,7 @@ class PlayFabClient():
 			raise ValueError("query failed: \n\n"+query)
 
 	def query_user_data_list(self, user_join_floor: datetime, join_window_in_days: int, user_limit=100000) -> list[UserData]:
-		query = f"""let title_id = "{self.title_id}";
-let filter_users_who_joined_before= datetime("{get_playfab_str_from_datetime(user_join_floor)}");
+		query = f"""let filter_users_who_joined_before= datetime("{get_playfab_str_from_datetime(user_join_floor)}");
 let join_window_in_days = {join_window_in_days};
 let user_limit = {user_limit+1};
 let filter_users_who_joined_after = datetime_add("day", join_window_in_days, filter_users_who_joined_before);
@@ -121,7 +120,7 @@ let users_by_join_datetime = all_users
 | take user_limit
 ;
 let users_by_event_count = all_users
-| where FullName_Namespace == "title.C54EF"
+| where FullName_Namespace == "title.{self.title_id}"
 | summarize EventCount=count() by PlayFabUserId
 ;
 users_by_join_datetime
