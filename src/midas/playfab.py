@@ -90,16 +90,14 @@ class PlayFabClient():
 		crp.application = "KustoPythonSDK"
 
 	def query(self, query=DEFAULT_QUERY):
-		try:
-			response = self.client.execute(self.title_id, query)
+		response = self.client.execute(self.title_id, query)
 
-			# Response processing
-			result = str(response[0])
-			df = pd.DataFrame(json.loads(result)["data"])
+		# Response processing
+		result = str(response[0])
+		df = pd.DataFrame(json.loads(result)["data"])
 
-			return df.to_dict(orient='records')
-		except:
-			raise ValueError("query failed: \n\n"+query)
+		return df.to_dict(orient='records')
+
 
 	def query_user_data_list(self, user_join_floor: datetime, join_window_in_days: int, user_limit=100000) -> list[UserData]:
 		query = f"""let filter_users_who_joined_before= datetime("{get_playfab_str_from_datetime(user_join_floor)}");
