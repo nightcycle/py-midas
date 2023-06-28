@@ -24,7 +24,7 @@ class EventDumpData:
     index: int
     is_studio: bool
     is_sequential: bool
-    state_date: BaseStateTree
+    state_data: BaseStateTree
 
 class Event:
     name: str
@@ -41,7 +41,7 @@ class Event:
     index: int
     is_studio: bool
     is_sequential: bool
-    state_date: BaseStateTree
+    state_data: BaseStateTree
     state_data: Incomplete
     def __init__(self, row_data: RowData) -> None: ...
     def __lt__(self, other): ...

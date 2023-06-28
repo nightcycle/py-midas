@@ -5,3 +5,5 @@ scripts/upload.sh
 test/**
 test
 scripts/tempCodeRunnerFile.sh
+test.json
+test.py

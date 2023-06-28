@@ -56,7 +56,7 @@ class EventDumpData:
 	index: int
 	is_studio: bool
 	is_sequential: bool
-	state_date: BaseStateTree
+	state_data: BaseStateTree
 
 class Event: 
 	name: str
@@ -73,7 +73,7 @@ class Event:
 	index: int
 	is_studio: bool
 	is_sequential: bool
-	state_date: BaseStateTree
+	state_data: BaseStateTree
 
 	def __init__(
 		self, 
@@ -130,7 +130,7 @@ class Event:
 			"index": self.index,
 			"is_studio": self.is_studio,
 			"is_sequential": self.is_sequential,
-			"state_date": deepcopy(self.state_data),
+			"state_data": deepcopy(self.state_data),
 		}
 		return event_dump_date
 

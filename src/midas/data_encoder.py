@@ -1,4 +1,5 @@
 import json
+import re
 from pandas import DataFrame
 from typing import Any, TypedDict, Union
 from .playfab import RawRowData
@@ -135,18 +136,18 @@ def decode(encoded_data: dict[str, Any], encoding_config: dict[str, Any]):
 	encoding_arrays = encoding_config["arrays"]
 	encoding_marker = encoding_config["marker"]
 
-
 	def restore_keys(data: dict[str, Any]):
 		out = {}
 		for k in data:
 			v = data[k]
+
 			if type(v) == dict:
 				v = restore_keys(v)
 
 			decoded_key = k
 			if k.startswith(encoding_marker):
 				for original_key, encoded_key in encoding_property_dict.items():
-					if k == encoding_marker + encoded_key:
+					if k.replace(encoding_marker, "") == encoded_key.replace(encoding_marker, ""):
 						decoded_key = original_key
 						break
 
@@ -187,7 +188,7 @@ def decode(encoded_data: dict[str, Any], encoding_config: dict[str, Any]):
 						elif k in val_dict:
 							for orig_v in val_dict[k]:
 								alt_v = val_dict[k][orig_v]
-								if v == encoding_marker+alt_v:
+								if v.replace(encoding_marker, "") == alt_v.replace(encoding_marker, ""):
 									v = orig_v
 
 			out[k] = v
@@ -195,6 +196,18 @@ def decode(encoded_data: dict[str, Any], encoding_config: dict[str, Any]):
 		return out
 
 	return restore_values(restore_keys(encoded_data), encoding_value_dict, encoding_arrays)
+
+def format_json_str(text) -> str:
+	# text = text.replace("'\":", "`\":")
+	# text = text.replace("\"'", "\"`")
+	# text = text.replace("\"", "'")
+	# text = text.replace("'", "\"")
+	# text = text.replace("`", "'")
+	text = text.replace("\\\"", "\"")
+	text = text.replace("False", "false")
+	text = text.replace("True", "true")
+	
+	return text
 
 def decode_raw_df(raw_df: DataFrame, encoding_config: Any) -> DataFrame:
 	untyped_raw_df: Any = raw_df
@@ -204,12 +217,15 @@ def decode_raw_df(raw_df: DataFrame, encoding_config: Any) -> DataFrame:
 	for raw_row_data in raw_record_list:
 		event_data: Any = {}
 		if type(raw_row_data["EventData"]) == str:
-			encoded_data_str = raw_row_data["EventData"].replace("'", "\"").replace("False", "false").replace("True", "true")
+
+			encoded_data_str = format_json_str(raw_row_data["EventData"])
+	
 			event_data = json.loads(encoded_data_str)
 		else:
 			event_data = raw_row_data["EventData"]
 		encoded_state_data = event_data["State"]
 		decoded_state_data = decode(encoded_state_data, encoding_config)
+
 		event_data["State"] = decoded_state_data
 		decoded_row_data: DecodedRowData = {
 				"EventData": event_data,

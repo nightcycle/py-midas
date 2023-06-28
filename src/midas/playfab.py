@@ -5,6 +5,7 @@ import time
 import json
 import math
 import pandas as pd
+from pandas import Timestamp
 from datetime import datetime
 from copy import deepcopy
 from typing import Any, TypedDict, Literal, Tuple
@@ -26,14 +27,19 @@ class RawRowData(TypedDict):
 	EventName: str
 	EventId: str
 
-def get_datetime_from_playfab_str(playfab_str: str) -> datetime:
-	try:
-		return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT)
-	except:
-		try: 
-			return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT_WITHOUT_FRACTION)
+def get_datetime_from_playfab_str(playfab_str: str | Timestamp) -> datetime:
+	if type(playfab_str) == str:
+		try:
+			return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT)
 		except:
-			return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT_WITH_FRACTION_NO_TZ)
+			try: 
+				return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT_WITHOUT_FRACTION)
+			except:
+				return datetime.strptime(playfab_str, PLAYFAB_DATE_FORMAT_WITH_FRACTION_NO_TZ)
+	elif type(playfab_str) == Timestamp:
+		return playfab_str.to_pydatetime()
+	else:
+		raise ValueError(str(type(playfab_str))+" is not a Timestamp or str")
 
 def get_playfab_str_from_datetime(datetime: datetime) -> str:
 	return datetime.strftime(PLAYFAB_DATE_FORMAT)
