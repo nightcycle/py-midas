@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 from typing import Any
 from .event import Event, get_events_from_df
-from .session import Session, SessionDumpData,  get_sessions_from_events, get_survival_rate
+from .session import Session, SessionDumpData,  get_sessions_from_events
 from .user import User, UserDumpData, get_users_from_session_list
 
 def dump(objects: list[Event] | list[Session] | list[User]):
@@ -34,18 +34,20 @@ def dump(objects: list[Event] | list[Session] | list[User]):
 	
 def load(
 	decoded_df: DataFrame,
-	stitch_session_separation_limit_seconds=180, 
+	# stitch_session_separation_limit_seconds=180, 
 	exit_event_name="UserExitQuit", 
 	enter_event_name="UserJoinEnter",
-	rejoin_event_name="UserRejoin",
-	teleport_event_name="UserTeleport",
-	sessions_must_include_exit_and_enter_events=True,
-	fill_down_enabled=False, 
-	recursive_fill_down_enabled=False
+	# rejoin_event_name="UserRejoin",
+	# teleport_event_name="UserTeleport",
+	sessions_must_include_exit_and_enter_events=False,
+	# fill_down_enabled=False, 
+	# recursive_fill_down_enabled=False
 ) -> tuple[list[Event], list[Session], list[User]]:
 
-	print(f"assembling events from {decoded_df.shape[0]} rows of data")
-	events = get_events_from_df(decoded_df, stitch_session_separation_limit_seconds, exit_event_name, enter_event_name, rejoin_event_name, teleport_event_name, fill_down_enabled, recursive_fill_down_enabled)
+	max_event_count = decoded_df.shape[0]
+	print(f"assembling events from {max_event_count} event entries")
+	events = get_events_from_df(decoded_df) #, stitch_session_separation_limit_seconds, exit_event_name, enter_event_name, rejoin_event_name, teleport_event_name, fill_down_enabled, recursive_fill_down_enabled)
+	# print("failed to load ",round(1000*(1-(len(events)/max_event_count)))/10, "%","of events")
 
 	print(f"assembling sessions from {len(events)} events")
 	sessions = get_sessions_from_events(events, sessions_must_include_exit_and_enter_events, exit_event_name, enter_event_name)
@@ -53,9 +55,9 @@ def load(
 	print(f"assembling users from {len(sessions)} sessions")
 	users = get_users_from_session_list(sessions)
 	
-	survival_rate = get_survival_rate(sessions)
+	# survival_rate = get_survival_rate(sessions)
 
-	print("event survival rate: "+str(round(survival_rate*100000)/1000)+"%")
+	# print("event survival rate: "+str(round(survival_rate*100000)/1000)+"%")
 
 	final_sessions: list[Session] = []
 	for user in users:

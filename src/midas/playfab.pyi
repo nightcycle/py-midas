@@ -2,6 +2,7 @@ from _typeshed import Incomplete
 from azure.kusto.data.exceptions import KustoServiceError as KustoServiceError
 from copy import deepcopy as deepcopy
 from datetime import datetime
+from pandas import Timestamp
 from typing import TypedDict
 
 CLUSTER: str
@@ -21,8 +22,10 @@ class RawRowData(TypedDict):
     PlayFabUserId: str
     EventName: str
     EventId: str
+    SessionId: str
+    Time: float
 
-def get_datetime_from_playfab_str(playfab_str: str) -> datetime: ...
+def get_datetime_from_playfab_str(playfab_str: str | Timestamp) -> datetime: ...
 def get_playfab_str_from_datetime(datetime: datetime) -> str: ...
 def update_based_on_success(is_success: bool, event_limit: int, fail_delay: int, original_list_limit: int, event_update_increment: int, delay_update_increment: int): ...
 

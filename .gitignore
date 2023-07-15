@@ -7,3 +7,5 @@ test
 scripts/tempCodeRunnerFile.sh
 test.json
 test.py
+midas.cache
+src/test.py

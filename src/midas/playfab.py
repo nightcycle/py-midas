@@ -9,6 +9,7 @@ from pandas import Timestamp
 from datetime import datetime
 from copy import deepcopy
 from typing import Any, TypedDict, Literal, Tuple
+import sys, os
 
 CLUSTER = "https://insights.playfab.com"
 DEFAULT_QUERY ="['events.all'] | limit 100"
@@ -26,6 +27,8 @@ class RawRowData(TypedDict):
 	PlayFabUserId: str
 	EventName: str
 	EventId: str
+	SessionId: str
+	Time: float
 
 def get_datetime_from_playfab_str(playfab_str: str | Timestamp) -> datetime:
 	if type(playfab_str) == str:
@@ -96,11 +99,17 @@ class PlayFabClient():
 		crp.application = "KustoPythonSDK"
 
 	def query(self, query=DEFAULT_QUERY):
+		print("executing query")
+		
+		sys.stdout = open(os.devnull, 'w')
 		response = self.client.execute(self.title_id, query)
+		sys.stdout = sys.__stdout__
 
 		# Response processing
 		result = str(response[0])
+		print("loading response")
 		df = pd.DataFrame(json.loads(result)["data"])
+		print("finished creating df")
 
 		return df.to_dict(orient='records')
 
@@ -137,13 +146,41 @@ users_by_join_datetime
 	def query_events_from_user_data(self, playfab_user_ids: list[str], user_join_floor: datetime) -> list[RawRowData]:
 		query = f"""let playfab_user_ids = dynamic({json.dumps(playfab_user_ids)});
 let only_events_after = datetime("{get_playfab_str_from_datetime(user_join_floor)}");
-['events.all']
+let session_list = ['events.all']
+| where FullName_Name == "player_logged_in"
+| project-keep Timestamp, EventId, EntityLineage_master_player_account
+| project-rename SessionId=EventId,PlayFabUserId=EntityLineage_master_player_account
+| where PlayFabUserId in (playfab_user_ids)
+| sort by Timestamp
+// | join kind=inner users_by_event_count on PlayFabUserId
+;
+let all_events = ['events.all']
 | where Timestamp > only_events_after
 | where FullName_Namespace  == "title.{self.title_id}"
 | project-rename PlayFabUserId=EntityLineage_master_player_account
 | where PlayFabUserId in (playfab_user_ids)
 | project-rename EventName=FullName_Name
 | project-keep EventData, Timestamp, PlayFabUserId, EventName, EventId
+;
+let session_events = all_events
+| join kind=fullouter  (
+    session_list
+    | project-rename SessionTimestamp=Timestamp
+) on PlayFabUserId
+| project-away PlayFabUserId1
+| extend Time = todouble(todouble(datetime_diff("millisecond", Timestamp, SessionTimestamp))/todouble(1000))
+| extend EventSessionId = strcat(EventId, Time)
+| where Time >= 0.0
+;
+let final_events = session_events
+| join kind=inner  (
+    session_events 
+    | summarize min(Time) by EventId
+    | extend EventSessionId = strcat(EventId, min_Time)
+) on EventSessionId
+| project-keep Timestamp, Time, SessionId, EventData, EventName, PlayFabUserId, EventId
+;
+final_events
 """
 		return self.query(query)
 

@@ -1,7 +1,7 @@
 import datetime as dt
 import copy
 from datetime import datetime
-from typing import Any, TypedDict
+from typing import Any, TypedDict, Optional
 from .session import Session
 from .playfab import get_playfab_str_from_datetime
 
@@ -12,11 +12,11 @@ class UserDumpData(TypedDict):
 	session_count: int
 	net_revenue: int
 	net_duration: float
-	is_retained_on_d0: bool
-	is_retained_on_d1: bool
-	is_retained_on_d7: bool
-	is_retained_on_d14: bool
-	is_retained_on_d28: bool
+	is_retained_on_d0: Optional[bool]
+	is_retained_on_d1: Optional[bool]
+	is_retained_on_d7: Optional[bool]
+	is_retained_on_d14: Optional[bool]
+	is_retained_on_d28: Optional[bool]
 
 class User:
 	user_id: str
@@ -25,11 +25,11 @@ class User:
 	session_count: int
 	net_revenue: int
 	net_duration: float
-	is_retained_on_d0: bool
-	is_retained_on_d1: bool
-	is_retained_on_d7: bool
-	is_retained_on_d14: bool
-	is_retained_on_d28: bool
+	is_retained_on_d0: Optional[bool]
+	is_retained_on_d1: Optional[bool]
+	is_retained_on_d7: Optional[bool]
+	is_retained_on_d14: Optional[bool]
+	is_retained_on_d28: Optional[bool]
 
 	def __init__(self, sessions: list[Session]):
 		sessions.sort()
@@ -41,6 +41,8 @@ class User:
 		self.timestamp = first_session.timestamp
 
 		last_session = sessions[len(sessions)-1]
+
+		final_timestamp = last_session.timestamp
 		
 		self.net_revenue = 0
 		self.net_duration = 0.0
@@ -61,11 +63,14 @@ class User:
 
 			return sessionsBetween
 
-		def get_retention_status(day: int, threshold: int):
+		def get_retention_status(day: int, threshold: int) -> Optional[bool]:
 			start: datetime = self.timestamp + dt.timedelta(days=day)
 			finish: datetime = start + dt.timedelta(days=1)
-			return len(get_sessions_count_between(start, finish)) > threshold
-
+			if finish <= datetime.now():
+				return len(get_sessions_count_between(start, finish)) > threshold
+			else:
+				return None
+			
 		self.is_retained_on_d0 = get_retention_status(0, 1)
 		self.is_retained_on_d1 = get_retention_status(1, 2)
 		self.is_retained_on_d7 = get_retention_status(7, 8)

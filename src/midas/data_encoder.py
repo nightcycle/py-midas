@@ -55,6 +55,8 @@ class DecodedRowData(TypedDict):
 	EventData: EventData
 	Timestamp: str
 	PlayFabUserId: str
+	SessionId: str
+	Time: float
 	EventName: str
 	EventId: str
 
@@ -229,6 +231,8 @@ def decode_raw_df(raw_df: DataFrame, encoding_config: Any) -> DataFrame:
 		event_data["State"] = decoded_state_data
 		decoded_row_data: DecodedRowData = {
 				"EventData": event_data,
+				"SessionId": raw_row_data["SessionId"],
+				"Time": raw_row_data["Time"],
 				"Timestamp": raw_row_data["Timestamp"],
 				"PlayFabUserId": raw_row_data["PlayFabUserId"],
 				"EventName": raw_row_data["EventName"],
