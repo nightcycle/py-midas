@@ -66,7 +66,7 @@ class User:
 		def get_retention_status(day: int, threshold: int) -> Optional[bool]:
 			start: datetime = self.timestamp + dt.timedelta(days=day)
 			finish: datetime = start + dt.timedelta(days=1)
-			if finish <= datetime.now():
+			if finish.timestamp() <= datetime.now().timestamp():
 				return len(get_sessions_count_between(start, finish)) > threshold
 			else:
 				return None
